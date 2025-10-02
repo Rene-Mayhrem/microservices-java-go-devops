@@ -1,125 +1,167 @@
-# 🛒 E-Commerce Microservices (Java + Go + DevOps)
+# 🛒 Microservice E-Commerce Project
 
-This project is a **polyglot e-commerce microservices system** built to learn and practice:
-- **Go (Golang) backend development**
-- **Java (Spring Boot) backend development**
-- **DevOps & Cloud-Native practices** (Docker, Kubernetes, CI/CD, Tilt, Terraform, Monitoring)
+This project is a **microservice-based e-commerce application** designed to learn and practice:
 
-The system simulates a real-world e-commerce platform where services are distributed, containerized, and orchestrated.
-
----
-
-## 🎯 Goals
-
-- Gain **hands-on experience with Go** by building microservices.
-- Strengthen **Java backend expertise** with Spring Boot.
-- Practice **DevOps workflows**: containers, orchestration, infrastructure as code, CI/CD, monitoring, and observability.
-- Learn to integrate **polyglot microservices** (Go + Java) into one ecosystem.
-- Build a **portfolio project** that demonstrates backend + DevOps skills.
+* **Backend Development** with **Java Spring Boot**
+* **DevOps** practices with **Docker, Kubernetes, Terraform, CI/CD**
+* **Cloud Deployment** on **AWS** (EKS, RDS, S3, Load Balancer)
+* **Event-Driven Architectures** using **Kafka/RabbitMQ**
 
 ---
 
-## 🏗️ Architecture
+## 🚀 Goals
 
-### Core Services
-| Service              | Language | Responsibilities |
-|----------------------|----------|------------------|
-| **User Service**     | Java (Spring Boot) | Authentication, registration, profile mgmt |
-| **Order Service**    | Java (Spring Boot) | Order lifecycle, transactions, business logic |
-| **Product Service**  | Go       | CRUD products, categories, inventory |
-| **Payment Service**  | Go       | Payment processing, retries, refunds |
-| **Cart Service**     | Go       | Session cart management, Redis caching |
-| **Notification Service** | Go   | Send emails, SMS, async notifications |
-
-### Supporting Components
-- **API Gateway**: NGINX or Spring Cloud Gateway
-- **Database**: PostgreSQL
-- **Cache**: Redis
-- **Messaging**: Kafka or RabbitMQ
-- **Monitoring**: Prometheus + Grafana
-- **Logging**: ELK / Loki
+* Build a **realistic e-commerce app** using microservices.
+* Learn **containerization & orchestration** with Docker & Kubernetes.
+* Explore **cloud deployment** with AWS and Infrastructure as Code.
+* Practice **CI/CD pipelines** and modern DevOps workflows.
 
 ---
 
-## 📂 Project Structure
+## 🗂️ System Architecture
 
+High-level overview of the system:
+
+```mermaid
+graph TD
+    subgraph Frontend
+        FE[Web App - React/Next.js]
+    end
+
+    subgraph Backend Services
+        OrderService[Order Service - Spring Boot]
+        PaymentService[Payment Service - Spring Boot]
+        InventoryService[Inventory Service - Spring Boot]
+        UserService[User Service - Spring Boot]
+        NotificationService[Notification Service - Spring Boot]
+    end
+
+    subgraph Messaging
+        MQ[Message Broker - Kafka/RabbitMQ]
+    end
+
+    subgraph Databases
+        OrderDB[(Orders DB)]
+        UserDB[(Users DB)]
+        InventoryDB[(Inventory DB)]
+        PaymentDB[(Payments DB)]
+    end
+
+    FE -->|REST API| OrderService
+    FE -->|REST API| UserService
+
+    OrderService --> InventoryService
+    OrderService --> PaymentService
+    OrderService -->|Async Event| MQ
+
+    InventoryService --> InventoryDB
+    OrderService --> OrderDB
+    UserService --> UserDB
+    PaymentService --> PaymentDB
+
+    MQ --> NotificationService
+    MQ --> InventoryService
 ```
-ecommerce-microservices/
-├── services/
-│ ├── java/
-│ │ ├── user-service/
-│ │ └── order-service/
-│ └── go/
-│ ├── product-service/
-│ ├── payment-service/
-│ ├── cart-service/
-│ └── notification-service/
-├── infra/
-│ ├── docker/
-│ ├── k8s/
-│ ├── terraform/
-│ └── tilt/
-├── gateway/
-│ └── api-gateway/
-├── monitoring/
-│ ├── grafana/
-│ └── prometheus/
-└── ci-cd/
-└── github-actions/
-```
+
 ---
 
-## 🚀 Workflow
+## 📦 Order Workflow – Sequence Diagram
 
-1. Start with **Product Service (Go)** → practice Go basics.
-2. Add **Order Service (Java)** → integrate with DB & transactions.
-3. Introduce **Event-driven messaging** with Kafka/RabbitMQ.
-4. Add **Tilt** → fast local dev & auto-redeploys.
-5. Move to **Kubernetes** deployment.
-6. Add **Monitoring & Logging**.
-7. Experiment with **gRPC** between Go and Java services.
-8. Setup **CI/CD with GitHub Actions**.
-9. Define infra with **Terraform**.
+How an order is placed and processed:
+
+```mermaid
+sequenceDiagram
+    participant Customer
+    participant FE as Frontend
+    participant OS as Order Service
+    participant IS as Inventory Service
+    participant PS as Payment Service
+    participant MQ as Message Broker
+    participant DB as Order DB
+
+    Customer->>FE: Place Order
+    FE->>OS: POST /orders
+    OS->>IS: Check inventory
+    IS-->>OS: Inventory OK
+    OS->>PS: Request payment
+    PS-->>OS: Payment success
+    OS->>DB: Save order
+    OS->>MQ: Publish OrderCreated event
+    MQ-->>IS: Update inventory (async)
+    MQ-->>NotificationService: Send confirmation
+```
+
+---
+
+## ☁️ Deployment Architecture
+
+Containerized deployment with **Kubernetes on AWS EKS**:
+
+```mermaid
+graph TD
+    subgraph AWS Cloud
+        subgraph EKS[EKS Cluster]
+            FE_Pod[Frontend Pod]
+            Order_Pod[Order Service Pod]
+            Payment_Pod[Payment Service Pod]
+            Inventory_Pod[Inventory Service Pod]
+            User_Pod[User Service Pod]
+            Notification_Pod[Notification Service Pod]
+            MQ_Pod[Kafka/RabbitMQ Pod]
+        end
+
+        subgraph Databases
+            RDS1[(Orders DB - RDS)]
+            RDS2[(Users DB - RDS)]
+            RDS3[(Inventory DB - RDS)]
+            RDS4[(Payments DB - RDS)]
+        end
+
+        S3[S3 Bucket - Assets/Media]
+        ELB[Elastic Load Balancer]
+    end
+
+    Customer --> ELB
+    ELB --> FE_Pod
+
+    FE_Pod --> Order_Pod
+    FE_Pod --> User_Pod
+
+    Order_Pod --> RDS1
+    User_Pod --> RDS2
+    Inventory_Pod --> RDS3
+    Payment_Pod --> RDS4
+
+    Order_Pod --> MQ_Pod
+    MQ_Pod --> Notification_Pod
+    MQ_Pod --> Inventory_Pod
+```
+
+---
+
+## 🔄 Event/Data Flow
+
+Asynchronous communication with **event-driven architecture**:
+
+```mermaid
+graph TD
+    OrderService -->|OrderCreated| MQ
+    MQ --> InventoryService
+    MQ --> NotificationService
+    MQ --> PaymentService
+    MQ --> AnalyticsService[Analytics/Monitoring]
+```
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Languages**: Go, Java (Spring Boot)
-- **Databases**: PostgreSQL, Redis
-- **Messaging**: Kafka / RabbitMQ
-- **Containerization**: Docker
-- **Orchestration**: Kubernetes (minikube, kind, or EKS)
-- **Dev Tools**: Tilt, Terraform, Helm
-- **CI/CD**: GitHub Actions / Jenkins
-- **Monitoring**: Prometheus, Grafana
-- **Logging**: ELK / Loki
+* **Backend:** Java 17, Spring Boot, Maven
+* **Frontend:** React/Next.js
+* **Databases:** PostgreSQL/MySQL (via AWS RDS)
+* **Messaging:** Kafka / RabbitMQ
+* **Infrastructure:** Docker, Kubernetes (EKS), Terraform
+* **CI/CD:** GitHub Actions / Jenkins
+* **Cloud Services:** AWS RDS, S3, EKS, ELB
 
----
 
-## 📚 Learning Focus
-
-- **Go:** concurrency, error handling, testing, gRPC.
-- **Java:** DDD, Spring Boot best practices, transactional workflows.
-- **DevOps:** CI/CD pipelines, IaC, monitoring, observability.
-- **Architecture:** microservices design, polyglot systems, API Gateway, service-to-service comms.
-
----
-
-## 🔮 Roadmap
-
-- [ ] Implement Product Service in Go  
-- [ ] Implement Order Service in Java  
-- [ ] Setup Docker Compose for local development  
-- [ ] Add Kafka for messaging  
-- [ ] Setup Tilt for local iterative dev  
-- [ ] Deploy services to Kubernetes  
-- [ ] Add monitoring stack (Prometheus, Grafana)  
-- [ ] Implement CI/CD pipeline  
-- [ ] Provision infra with Terraform  
-
----
-
-## 📖 Author’s Note
-
-This project is built primarily as a **learning playground** to strengthen skills as a **Java backend developer**, explore **Go**, and gain hands-on **DevOps experience**.
