@@ -1,0 +1,18 @@
+version: '3.8'
+service:
+  user-db:
+    image: postgres:15
+    container_name: user-db
+    environment:
+      POSTGRES_USER: user 
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: user-db
+    ports:
+      - "5432:5432"
+  user-service:
+    build: .
+    container_name: user-service 
+    ports: 
+      - "8081:8081"
+    depends_on:
+      user-db
