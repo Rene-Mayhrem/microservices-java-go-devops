@@ -3,8 +3,8 @@
 
 ### 1. **Project Setup**
 
-* [ ] Create a new Spring Boot project (via Spring Initializr).
-* [ ] Include dependencies:
+* [ x ] Create a new Spring Boot project (via Spring Initializr).
+* [ x ] Include dependencies:
 
   * `Spring Web`
   * `Spring Data JPA`
@@ -12,7 +12,7 @@
   * `Spring Validation`
   * `PostgreSQL Driver` (or MySQL, depending on choice)
   * `Lombok` (optional but convenient).
-* [ ] Configure `application.yml` with DB connection, server port.
+* [ x ] Configure `application.yml` with DB connection, server port.
 
 ---
 
