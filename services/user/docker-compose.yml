@@ -1,5 +1,5 @@
 version: '3.8'
-service:
+services:
   user-db:
     image: postgres:15
     container_name: user-db
@@ -15,4 +15,4 @@ service:
     ports: 
       - "8081:8081"
     depends_on:
-      user-db
+      - user-db
