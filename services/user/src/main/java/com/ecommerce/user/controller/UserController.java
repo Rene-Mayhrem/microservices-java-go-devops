@@ -16,6 +16,7 @@ import com.ecommerce.user.dto.UserRequest;
 import com.ecommerce.user.dto.UserResponse;
 import com.ecommerce.user.service.UserService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -27,7 +28,7 @@ public class UserController {
 
     //? CREATE NEW USER
     @PostMapping
-    public ResponseEntity<UserResponse> createUser (@RequestBody UserRequest request){
+    public ResponseEntity<UserResponse> createUser (@Valid @RequestBody UserRequest request){
         return ResponseEntity.ok(service.createUser(request));
     }
 
@@ -52,7 +53,7 @@ public class UserController {
 
     //? UPDATE USER
     @PutMapping("/{id}")
-    public ResponseEntity<UserResponse> updateUser (@PathVariable Long id,
+    public ResponseEntity<UserResponse> updateUser (@Valid @PathVariable Long id,
                                                     @RequestBody UserRequest request) {
         return ResponseEntity.ok(service.updateUser(request, id));
     }
