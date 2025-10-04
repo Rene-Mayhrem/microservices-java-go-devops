@@ -9,8 +9,9 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserRequest {
+public class UserRequestDTO {
     @NotBlank(message = "Uername is required")
+    @Size(min = 3, max = 50)
     private String username;
     
     @Email(message = "Invalid email format")

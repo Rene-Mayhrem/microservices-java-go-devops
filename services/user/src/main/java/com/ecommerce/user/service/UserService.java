@@ -7,11 +7,14 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.ecommerce.user.dto.UserRequest;
-import com.ecommerce.user.dto.UserResponse;
+import com.ecommerce.user.dto.AuthRequestDTO;
+import com.ecommerce.user.dto.AuthResponseDTO;
+import com.ecommerce.user.dto.UserRequestDTO;
+import com.ecommerce.user.dto.UserResponseDTO;
 import com.ecommerce.user.exception.UserNotFoundException;
 import com.ecommerce.user.model.User;
 import com.ecommerce.user.repository.UserRepository;
+import com.ecommerce.user.security.JwtUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -21,9 +24,12 @@ public class UserService {
     
     private final UserRepository repository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwt;
+
+
 
     //? Register user
-    public UserResponse registerUser (UserRequest request) {
+    public UserResponseDTO registerUser (UserRequestDTO request) {
         User user = User.builder()
             .username(request.getUsername())
             .email(request.getEmail())
@@ -33,7 +39,7 @@ public class UserService {
             .role("USER")
             .build();
         User savedUser = repository.save(user);
-        return UserResponse.builder()
+        return UserResponseDTO.builder()
             .id(savedUser.getId())
             .username(savedUser.getUsername())
             .email(savedUser.getEmail())
@@ -43,10 +49,10 @@ public class UserService {
             .build();
     }
 
-    public UserResponse getUserByEmail (String email) {
+    public UserResponseDTO getUserByEmail (String email) {
         User user = repository.findByEmail(email)
             .orElseThrow(() -> new UserNotFoundException("User not found"));
-        return UserResponse.builder()
+        return UserResponseDTO.builder()
             .id(user.getId())
             .username(user.getUsername())
             .email(user.getEmail())
@@ -59,20 +65,21 @@ public class UserService {
 
 
     //? Create new user
-    public UserResponse createUser (UserRequest request) {
+    public UserResponseDTO createUser (UserRequestDTO request) {
         User user = User.builder()
             .username(request.getUsername())
             .email(request.getEmail())
             .password(passwordEncoder.encode(request.getPassword()))
             .firstName(request.getFirstName())
             .lastName(request.getLastName())
+            .role("USER")
             .build();
         User savedUser = repository.save(user);
         return mapToResponse(savedUser);
     }
 
     //? Get all users
-    public List<UserResponse> getAllUsers () {
+    public List<UserResponseDTO> getAllUsers () {
         return repository.findAll()
             .stream()
             .map(this::mapToResponse)
@@ -80,14 +87,14 @@ public class UserService {
     }
 
     //? Get user by id
-    public UserResponse getUserById (Long id) {
+    public UserResponseDTO getUserById (Long id) {
         User user = repository.findById(id)
             .orElseThrow(() -> new UserNotFoundException("User not found"));
         return mapToResponse(user);
     }
 
     //? Update user
-    public UserResponse updateUser (UserRequest request, Long id) {
+    public UserResponseDTO updateUser (UserRequestDTO request, Long id) {
         User user = repository.findById(id)
             .orElseThrow(() -> new UserNotFoundException("User not found"));
         
@@ -105,9 +112,24 @@ public class UserService {
         repository.deleteById(id);
     }
 
+    public AuthResponseDTO login (AuthRequestDTO request) {
+        User user = repository.findByEmail(request.getEmail())
+            .orElseThrow(() -> new UserNotFoundException("Invalid Credentials"));
+        
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new RuntimeException("Invalid Credentials");
+        }
+        String token = jwt.generateToken(user);
+        return AuthResponseDTO.builder()
+            .token(token)
+            .email(user.getEmail())
+            .username(user.getEmail())
+            .build();
+    }
+
     //? Mapper
-    private UserResponse mapToResponse(User user) {
-        return UserResponse.builder()
+    private UserResponseDTO mapToResponse(User user) {
+        return UserResponseDTO.builder()
             .id(user.getId())
             .username(user.getUsername())
             .email(user.getEmail())
