@@ -21,6 +21,7 @@ public class UserService {
     private final UserRepository repository;
     private final PasswordEncoder passwordEncoder;
 
+
     //? Create new user
     public UserResponse createUser (UserRequest request) {
         User user = User.builder()

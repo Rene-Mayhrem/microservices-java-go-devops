@@ -1,7 +1,10 @@
 package com.ecommerce.user.security;
 
 import java.security.Key;
+import java.util.Base64;
 import java.util.Date;
+
+import javax.crypto.SecretKey;
 
 import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties.Jwt;
 import org.springframework.stereotype.Component;
@@ -9,20 +12,27 @@ import org.springframework.stereotype.Component;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 
 @Component
-public class JwtUtil {
-    private final String SECRET_KEY = "my-secret-key-1234567890"; // TODO: put in config
-    private final long EXPIRATION = 1000 * 60 * 60;
+public class JwtUtil { 
+    private final SecretKey key; // TODO: put in config
+    private final long expiration;
 
-    private final Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
+    public JwtUtil(
+        @Value("${jwt.secret}") String secret, 
+        @Value("${jwt.expiration}") long expiration) {
+            this.key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
+            this.expiration = expiration;
+    }
 
     public String generateToken (String username) {
         return Jwts.builder()
             .setSubject(username)
             .setIssuedAt(new Date())
-            .setExpiration(new Date(System.currentTimeMillis() * EXPIRATION))
+            .setExpiration(new Date(System.currentTimeMillis() + expiration))
             .signWith(key, SignatureAlgorithm.HS256)
             .compact();
     }
