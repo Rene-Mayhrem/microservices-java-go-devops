@@ -26,6 +26,16 @@ public class UserController {
 
     private final UserService service;
 
+    @PostMapping("/register")
+    public ResponseEntity<UserResponse> register (@RequestBody UserRequest request) {
+        return ResponseEntity.ok(service.registerUser(request));
+    }
+
+    @GetMapping("/{email}")
+    public ResponseEntity<UserResponse> getUser (@PathVariable String email) {
+        return ResponseEntity.ok(service.getUserByEmail(email));
+    }
+
     //? CREATE NEW USER
     @PostMapping
     public ResponseEntity<UserResponse> createUser (@Valid @RequestBody UserRequest request){

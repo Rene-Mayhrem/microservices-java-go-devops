@@ -21,13 +21,17 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
 
     public AuthResponse login (AuthRequest request) {
-        User user = repository.findByUsername(request.getUsername())
+        User user = repository.findByEmail(request.getEmail())
             .orElseThrow(() -> new UserNotFoundException("Invalid Credentials"));
         
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new RuntimeException("Invalid Credentials");
         }
         String token = jwt.generateToken(user.getUsername());
-        return new AuthResponse(token);
+        return AuthResponse.builder()
+            .token(token)
+            .email(user.getEmail())
+            .username(user.getEmail())
+            .build();
     }
 }
