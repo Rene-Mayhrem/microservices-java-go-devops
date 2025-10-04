@@ -3,10 +3,12 @@ package com.ecommerce.user.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.ecommerce.user.dto.UserRequest;
 import com.ecommerce.user.dto.UserResponse;
+import com.ecommerce.user.exception.UserNotFoundException;
 import com.ecommerce.user.model.User;
 import com.ecommerce.user.repository.UserRepository;
 
@@ -17,13 +19,14 @@ import lombok.RequiredArgsConstructor;
 public class UserService {
     
     private final UserRepository repository;
+    private final PasswordEncoder passwordEncoder;
 
     //? Create new user
     public UserResponse createUser (UserRequest request) {
         User user = User.builder()
             .username(request.getUsername())
             .email(request.getEmail())
-            .password(request.getPassword())
+            .password(passwordEncoder.encode(request.getPassword()))
             .firstName(request.getFirstName())
             .lastName(request.getLastName())
             .build();
@@ -42,20 +45,20 @@ public class UserService {
     //? Get user by id
     public UserResponse getUserById (Long id) {
         User user = repository.findById(id)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElseThrow(() -> new UserNotFoundException("User not found"));
         return mapToResponse(user);
     }
 
     //? Update user
     public UserResponse updateUser (UserRequest request, Long id) {
         User user = repository.findById(id)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElseThrow(() -> new UserNotFoundException("User not found"));
         
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
-        user.setPassword(request.getPassword());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         User udpatedUser = repository.save(user); //? update user
         return mapToResponse(udpatedUser);
     }
@@ -75,5 +78,6 @@ public class UserService {
             .lastName(user.getLastName())
             .build();
     }
+
 
 }
