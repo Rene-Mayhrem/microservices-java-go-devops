@@ -2,6 +2,7 @@ package com.ecommerce.user.security;
 
 import java.net.Authenticator;
 import java.security.Security;
+import java.util.List;
 
 import org.springframework.boot.autoconfigure.couchbase.CouchbaseProperties.Authentication;
 import org.springframework.context.annotation.Bean;
@@ -26,6 +27,13 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain (HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
+            .cors(cors -> cors.configurationSource(request -> {
+                var corsV = new org.springframework.web.cors.CorsConfiguration();
+                corsV.setAllowedOrigins(List.of("*"));
+                corsV.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                corsV.setAllowedHeaders(List.of("*"));
+                return corsV;
+            }))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/**").permitAll()
                 .anyRequest().authenticated()   
@@ -35,10 +43,10 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // @Bean
-    // public PasswordEncoder passwordEncoder ()  {
-    //     return new BCryptPasswordEncoder();
-    // }
+    @Bean
+    public PasswordEncoder passwordEncoder ()  {
+        return new BCryptPasswordEncoder();
+    }
 
     @Bean
     public AuthenticationManager authenticationManager (AuthenticationConfiguration config) throws Exception {
