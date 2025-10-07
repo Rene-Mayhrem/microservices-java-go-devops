@@ -6,9 +6,13 @@ services:
     environment:
       POSTGRES_USER: user 
       POSTGRES_PASSWORD: admin123
-      POSTGRES_DB: user-db
+      POSTGRES_DB: userdb
     ports:
       - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data 
+    networks:
+      - ecommerce-net 
   user-service:
     build: .
     container_name: user-service 
@@ -16,3 +20,15 @@ services:
       - "8081:8081"
     depends_on:
       - user-db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://user-db:5432/userdb
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: admin123
+    networks:
+      - ecommerce-net 
+    
+networks:
+  ecommerce-net:
+
+volumes: 
+  postgres_data:
