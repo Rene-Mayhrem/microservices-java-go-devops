@@ -2,6 +2,7 @@ package com.order.order.model;
 
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -16,7 +17,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumns;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -42,5 +42,9 @@ public class Order {
     @ElementCollection
     @CollectionTable(name = "order_items", joinColumns = @JoinColumn(name = "orders_id"))
     private List<OrderItem> items;
+    @CreationTimestamp
+    private Instant createdAt;
+    @CreationTimestamp
+    private Instant updatedAt;
 
 }
