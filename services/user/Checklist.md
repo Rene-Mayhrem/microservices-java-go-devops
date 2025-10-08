@@ -18,7 +18,7 @@
 
 ### 2. **Database Design**
 
-* [ ] Define schema: `User` table. Example fields:
+* [x ] Define schema: `User` table. Example fields:
 
   * `id (UUID)`
   * `username`
@@ -26,26 +26,26 @@
   * `password` (hashed)
   * `role` (USER, ADMIN)
   * `created_at` / `updated_at`
-* [ ] Write JPA entity class for `User`.
-* [ ] Implement repository interface with `JpaRepository<User, UUID>`.
+* [x] Write JPA entity class for `User`.
+* [x ] Implement repository interface with `JpaRepository<User, UUID>`.
 
 ---
 
 ### 3. **Business Logic Layer**
 
-* [ ] Create `UserService` class for business operations:
+* [x ] Create `UserService` class for business operations:
 
   * Create new user.
   * Get user by ID/username/email.
   * Update user details.
   * Delete user.
-* [ ] Add password hashing (BCrypt).
+* [x ] Add password hashing (BCrypt).
 
 ---
 
 ### 4. **API Layer**
 
-* [ ] Create `UserController` with REST endpoints:
+* [ x] Create `UserController` with REST endpoints:
 
   * `POST /users` → Register new user.
   * `GET /users/{id}` → Fetch user by ID.
@@ -57,29 +57,28 @@
 
 ### 5. **Validation & Security**
 
-* [ ] Use DTOs + validation annotations (`@NotBlank`, `@Email`, etc.).
-* [ ] Add Spring Security (basic JWT authentication):
+* [x] Use DTOs + validation annotations (`@NotBlank`, `@Email`, etc.).
+* [x] Add Spring Security (basic JWT authentication):
 
   * `POST /auth/register`
   * `POST /auth/login`
   * Protect `/users/**` endpoints.
-* [ ] Store only hashed passwords.
+* [x] Store only hashed passwords.
 
 ---
 
 ### 6. **Testing**
 
-* [ ] Write unit tests for `UserService`.
-* [ ] Write integration tests for `UserController`.
-* [ ] Use `MockMvc` for REST endpoint testing.
-
+* [x] Write unit tests for `UserService`.
+* [x] Write integration tests for `UserController`.
+* [x]
 ---
 
 ### 7. **Dockerization**
 
-* [ ] Create `Dockerfile` for the service.
-* [ ] Add `docker-compose.yml` with DB + User Service.
-* [ ] Ensure it runs locally.
+* [x] Create `Dockerfile` for the service.
+* [x] Add `docker-compose.yml` with DB + User Service.
+* [x] Ensure it runs locally.
 
 ---
 
